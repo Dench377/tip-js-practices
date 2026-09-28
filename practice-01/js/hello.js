@@ -1,8 +1,8 @@
 "use strict";
 
 // Данные студента и практической работы
-const studentName = "Студент";
-const groupName = "Учебная группа";
+const studentName = "Сидорович Денис Сергеевич";
+const groupName = "ЭФБО-17-25";
 const practiceNumber = 1;
 
 console.log(`Студент: ${studentName}`);

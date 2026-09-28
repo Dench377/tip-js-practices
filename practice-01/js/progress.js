@@ -1,8 +1,8 @@
 "use strict";
 
-// Входные данные (Вариант 1)
-const totalTasks = 12;
-const completedTasks = 5;
+// Входные данные (Вариант 7: totalTasks = 10, completedTasks = 7)
+const totalTasks = 10;
+const completedTasks = 7;
 
 // Проверка корректности типов и формата входных данных
 if (typeof totalTasks === "string" || typeof completedTasks === "string") {

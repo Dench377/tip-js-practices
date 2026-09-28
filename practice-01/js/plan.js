@@ -1,8 +1,8 @@
 "use strict";
 
-// Входные данные (Вариант 1)
-const totalTasks = 12;
-const completedTasks = 5;
+// Входные данные (Вариант 7: totalTasks = 10, completedTasks = 7, dailyLimit = 3)
+const totalTasks = 10;
+const completedTasks = 7;
 const dailyLimit = 3;
 
 // Проверка входных данных задач и дневной нормы
