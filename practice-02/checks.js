@@ -347,13 +347,44 @@ check("35. Работа с другим набором, без зависимо�
   assert.deepEqual(tasks, before);
 });
 
-// Три собственных проверки можно добавить здесь, до итогового вывода,
-// либо выполнить отдельно и описать в отчёте. Общие проверки удалять не нужно.
-// Пример формы записи (не готовая проверка задания):
-// check("Собственный случай: ...", () => {
-//   const result = ...;
-//   assert.deepEqual(result, ...);
-// });
+import { getPrioritySummary, searchTasks } from "./src/task-extra.js";
+
+check("36. Собственная проверка 1: Последовательное добавление нескольких задач и расчет сводки", () => {
+  let list = [];
+  list = expectTasks(addTask(list, 101, "Первая"));
+  list = expectTasks(addTask(list, 102, "Вторая"));
+  list = expectTasks(addTask(list, 103, "Третья"));
+  list = expectTasks(setTaskCompleted(list, 101, true));
+  const stats = getTaskStats(list);
+  assert.equal(stats.total, 3);
+  assert.equal(stats.completed, 1);
+  assert.equal(stats.pending, 2);
+  assert.ok(Math.abs(stats.progress - 33.333333333333336) < 1e-10);
+});
+
+check("37. Собственная проверка 2: Добавление после удаления с тем же названием", () => {
+  const initial = fixture();
+  const without4 = expectTasks(removeTask(initial, 4));
+  const added99 = expectTasks(addTask(without4, 99, "Подготовить модель задач", "high"));
+  assert.equal(findTaskById(added99, 4), undefined);
+  assert.equal(findTaskById(added99, 99).title, "Подготовить модель задач");
+  assert.deepEqual(initial, fixture());
+});
+
+check("38. Собственная проверка 3: Дополнительные функции searchTasks и getPrioritySummary", () => {
+  const tasks = fixture();
+  const searchResult = searchTasks(tasks, " МОДЕЛЬ ");
+  assert.equal(searchResult.length, 1);
+  assert.equal(searchResult[0].id, 4);
+
+  const priorityStats = getPrioritySummary(tasks);
+  assert.deepEqual(priorityStats, {
+    low: { total: 1, pending: 1 },
+    medium: { total: 2, pending: 0 },
+    high: { total: 1, pending: 1 },
+  });
+});
+
 
 console.log(`\nПроверок пройдено: ${passed}; не пройдено: ${failed}.`);
 if (failed > 0) {
