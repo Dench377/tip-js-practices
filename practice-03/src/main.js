@@ -10,42 +10,118 @@ const elements = {
   empty: document.querySelector("#empty-message"),
   message: document.querySelector("#operation-message"),
   datasetLabel: document.querySelector("#dataset-label"),
+  undoBtn: document.querySelector("#undo-delete-btn"),
 };
 
-// Готовая служебная часть: ?dataset=variant включает данные своего варианта.
-// Наборы не смешиваются, редактировать код для переключения не требуется.
+// Выбор набора данных по query-параметру
 const isVariant = new URLSearchParams(window.location.search).get("dataset") === "variant";
 const initialTasks = isVariant ? variantTasks : demoTasks;
 let currentTasks = initialTasks.map((task) => ({ ...task }));
 let currentFilter = "all";
+let lastDeleted = null; // Хранение последней удалённой задачи для однократной отмены
 
 elements.datasetLabel.textContent = isVariant
   ? `Индивидуальный вариант: ${variantNumber ?? "не указан"}`
   : "Общий контрольный набор";
 
+function updateUndoState() {
+  if (elements.undoBtn) {
+    elements.undoBtn.disabled = !lastDeleted;
+  }
+}
+
+// Согласованное обновление представления интерфейса
 function renderApp() {
-  // TODO: отобрать видимые задачи; обновить список, общую сводку и пустое состояние.
-  // TODO: для кнопок фильтра обновить is-active и aria-pressed.
-  // Не изменять currentTasks и не добавлять обработчики событий в этой функции.
-  throw new Error("Не реализовано: renderApp");
+  const visibleTasks = getVisibleTasks(currentTasks, currentFilter);
+  renderTaskList(elements.list, visibleTasks);
+  renderSummary(elements.summary, currentTasks, visibleTasks.length);
+  renderEmptyState(elements.empty, currentTasks.length, visibleTasks.length);
+
+  const filterButtons = elements.filters.querySelectorAll("button[data-filter]");
+  for (const btn of filterButtons) {
+    const isActive = btn.dataset.filter === currentFilter;
+    btn.classList.toggle("is-active", isActive);
+    btn.setAttribute("aria-pressed", String(isActive));
+  }
+  updateUndoState();
 }
 
+// Делегированная обработка кликов по карточкам списка
 function handleTaskListClick(event) {
-  // TODO: найти кнопку через closest(), проверить её принадлежность списку.
-  // TODO: распознать toggle/delete; прочитать и проверить числовой id карточки.
-  // TODO: вызвать функцию ПР2, разобрать ok/error, сохранить успешный результат.
-  // TODO: renderApp(), затем restoreTaskFocus(id, action).
-  throw new Error("Не реализовано: handleTaskListClick");
+  if (!(event.target instanceof Element)) return;
+
+  const button = event.target.closest("button[data-action]");
+  if (!button || !elements.list.contains(button)) return;
+
+  const action = button.dataset.action;
+  if (action !== "toggle" && action !== "delete") return;
+
+  const card = button.closest("li[data-task-id]");
+  if (!card || !elements.list.contains(card)) return;
+
+  const rawId = card.dataset.taskId;
+  const id = Number(rawId);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    elements.message.textContent = "Некорректный идентификатор задачи";
+    return;
+  }
+
+  const task = findTaskById(currentTasks, id);
+  if (!task) {
+    elements.message.textContent = `Задача с id ${id} не найдена`;
+    return;
+  }
+
+  let result;
+  if (action === "toggle") {
+    result = setTaskCompleted(currentTasks, id, !task.completed);
+  } else if (action === "delete") {
+    const index = currentTasks.findIndex((t) => t.id === id);
+    result = removeTask(currentTasks, id);
+    if (result && result.ok) {
+      lastDeleted = { task: { ...task }, index };
+    }
+  }
+
+  if (!result || !result.ok) {
+    elements.message.textContent = result?.error ?? "Ошибка операции";
+    return;
+  }
+
+  currentTasks = result.tasks;
+  elements.message.textContent = "";
+  renderApp();
+  restoreTaskFocus(id, action);
 }
 
+// Переключение фильтра без потери данных
 function handleFilterClick(event) {
-  // TODO: найти кнопку фильтра, проверить all/pending/completed.
-  // TODO: изменить только currentFilter, очистить сообщение и вызвать renderApp().
-  throw new Error("Не реализовано: handleFilterClick");
+  if (!(event.target instanceof Element)) return;
+
+  const button = event.target.closest("button[data-filter]");
+  if (!button || !elements.filters.contains(button)) return;
+
+  const filter = button.dataset.filter;
+  if (filter !== "all" && filter !== "pending" && filter !== "completed") return;
+
+  currentFilter = filter;
+  elements.message.textContent = "";
+  renderApp();
 }
 
-// Готовая вспомогательная функция. Сохраняет понятную позицию клавиатурного фокуса
-// после замены карточек. Если карточки больше нет, фокус получает активный фильтр.
+// Дополнительное задание: однократная отмена последнего удаления
+function handleUndoClick() {
+  if (!lastDeleted) return;
+  const newTasks = [...currentTasks];
+  const insertIndex = Math.min(lastDeleted.index, newTasks.length);
+  newTasks.splice(insertIndex, 0, { ...lastDeleted.task });
+  currentTasks = newTasks;
+  lastDeleted = null;
+  elements.message.textContent = "";
+  renderApp();
+}
+
+// Восстановление позиции клавиатурного фокуса после перерисовки
 function restoreTaskFocus(id, action) {
   const actionButton = elements.list.querySelector(
     `[data-task-id="${id}"] button[data-action="${action}"]`,
@@ -54,12 +130,13 @@ function restoreTaskFocus(id, action) {
   (actionButton ?? filterButton)?.focus();
 }
 
-// Подписки выполняются один раз. Эти контейнеры не заменяются при перерисовке.
+// Регистрация обработчиков на родительских контейнерах
 elements.list.addEventListener("click", handleTaskListClick);
 elements.filters.addEventListener("click", handleFilterClick);
+if (elements.undoBtn) {
+  elements.undoBtn.addEventListener("click", handleUndoClick);
+}
 
-// До реализации renderApp ожидается сообщение о заглушке.
-// try/catch здесь — готовая диагностика старта, а не замена проверки result.ok.
 try {
   renderApp();
 } catch (error) {
