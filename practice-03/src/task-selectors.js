@@ -1,6 +1,6 @@
-// Новый модуль ПР3. Вход: корректный массив задач и фильтр all/pending/completed.
-// Результат: новый массив, исходный порядок и объекты сохраняются.
+// Отбор задач по фильтру (чистая функция без мутаций входного массива)
 export function getVisibleTasks(tasks, filter = "all") {
-  // TODO: all — копия массива, pending — невыполненные, completed — выполненные.
-  throw new Error("Не реализовано: getVisibleTasks");
+  if (filter === "pending") return tasks.filter((t) => !t.completed);
+  if (filter === "completed") return tasks.filter((t) => t.completed);
+  return [...tasks];
 }
