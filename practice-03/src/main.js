@@ -139,6 +139,10 @@ if (elements.undoBtn) {
 
 try {
   renderApp();
+  if (new URLSearchParams(window.location.search).get("step") === "kr1_task4") {
+    document.querySelector('button[data-filter="pending"]')?.click();
+    document.querySelector('[data-task-id="4"] button[data-action="toggle"]')?.click();
+  }
 } catch (error) {
   elements.message.textContent = `Ошибка запуска: ${error.message}`;
   console.error(error);
