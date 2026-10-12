@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПР1 — Задание 4: plan.js</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 720px;
+        margin: 40px auto;
+        padding: 0 20px;
+        background: #f8fafc;
+        color: #1e293b;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      }
+      h1 { font-size: 20px; margin-top: 0; color: #0f172a; }
+      .meta { font-size: 14px; color: #64748b; margin-bottom: 16px; }
+      .meta span { font-weight: 600; color: #334155; }
+      pre {
+        background: #0f172a;
+        color: #38bdf8;
+        padding: 18px;
+        border-radius: 8px;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      .note { font-size: 13px; color: #64748b; margin-top: 12px; }
+    </style>
+    <script>
+      // Перехват вывода console.log на страницу
+      window.addEventListener("DOMContentLoaded", () => {
+        const out = document.getElementById("log-output");
+        const origLog = console.log;
+        console.log = function (...args) {
+          origLog.apply(console, args);
+          out.textContent += args.join(" ") + "\n";
+        };
+      });
+    </script>
+    <script src="./js/plan.js" defer></script>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Практическая работа № 1 — Задание 4 (plan.js)</h1>
+      <div class="meta">
+        Студент: <span>Сидорович Денис Сергеевич</span> |
+        Группа: <span>ЭФБО-17-25</span> |
+        Вариант: <span>7</span>
+      </div>
+      <p>Параметры варианта: <strong>totalTasks = 10</strong>, <strong>completedTasks = 7</strong>, <strong>dailyLimit = 3</strong></p>
+      <h3>Вывод программы:</h3>
+      <pre id="log-output"></pre>
+      <div class="note">
+        💡 Результаты также выведены в консоль браузера (клавиша <strong>F12</strong> → вкладка <strong>Console</strong>).
+      </div>
+    </div>
+  </body>
+</html>

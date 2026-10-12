@@ -1,0 +1,16 @@
+{
+  "name": "tip-js-practices",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "plan": "node practice-01/js/plan.js",
+    "progress": "node practice-01/js/progress.js",
+    "hello": "node practice-01/js/hello.js",
+    "types": "node practice-01/js/types.js",
+    "debug": "node practice-01/js/debug.js",
+    "plan:week": "node practice-01/js/plan-week.js",
+    "checks:pr2": "node practice-02/checks.js",
+    "ui:pr3": "node practice-03/tools/serve.mjs"
+  }
+}
